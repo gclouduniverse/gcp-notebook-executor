@@ -1,8 +1,8 @@
 if lspci -vnn | grep NVIDIA > /dev/null 2>&1; then
   # Nvidia card found, need to check if driver is up
   if ! nvidia-smi > /dev/null 2>&1; then
-    # Driver is not up, DLVM will reboot after driver installed so there is no needed to execute training now, exiting
-    exit 0
+    echo "Installing driver"
+    /opt/deeplearning/install-driver.sh
   fi
 fi
 
@@ -19,7 +19,10 @@ INPUT_NOTEBOOK_PATH=`find ${NOTEBOOKS_FOLDER}/ | grep ipynb`
 
 papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}"
 
+gsutil cp "${OUTPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_GCS_FOLDER}"
+
 INSTANCE_NAME=$(curl http://metadata.google.internal/computeMetadata/v1/instance/name -H "Metadata-Flavor: Google")
-INSTANCE_ZONE=$(curl http://metadata.google.internal/computeMetadata/v1/instance/zone -H "Metadata-Flavor: Google")
+INSTANCE_ZONE="/"$(curl http://metadata.google.internal/computeMetadata/v1/instance/zone -H "Metadata-Flavor: Google")
+INSTANCE_ZONE="${INSTANCE_ZONE##/*/}"
 INSTANCE_PROJECT_NAME=$(curl http://metadata.google.internal/computeMetadata/v1/project/project-id -H "Metadata-Flavor: Google")
 gcloud compute instances delete "${INSTANCE_NAME}" --zone "${INSTANCE_ZONE}" --project "${INSTANCE_PROJECT_NAME}"
