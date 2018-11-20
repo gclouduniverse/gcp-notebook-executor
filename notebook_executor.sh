@@ -1,3 +1,11 @@
+if lspci -vnn | grep NVIDIA > /dev/null 2>&1; then
+  # Nvidia card found, need to check if driver is up
+  if ! nvidia-smi > /dev/null 2>&1; then
+    # Driver is not up, DLVM will reboot after driver installed so there is no needed to execute training now, exiting
+    exit 0
+  fi
+fi
+
 NOTEBOOKS_FOLDER="/tmp"
 
 OUTPUT_NOTEBOOK_NAME="notebook.ipynb"
