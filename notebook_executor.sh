@@ -18,8 +18,7 @@ readonly PARAMETERS_GCS_FILE=$(curl http://metadata.google.internal/computeMetad
 gsutil cp "${INPUT_NOTEBOOK_GCS_FILE}" "${NOTEBOOKS_FOLDER}/"
 readonly INPUT_NOTEBOOK_PATH=`find ${NOTEBOOKS_FOLDER}/ | grep ipynb`
 
-if [[ -z "${PARAMETERS_GCS_FILE}" ]];
-then
+if [[ -z "${PARAMETERS_GCS_FILE}" ]]; then
   papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}"
 else
   gsutil cp "${PARAMETERS_GCS_FILE}" params.yaml
