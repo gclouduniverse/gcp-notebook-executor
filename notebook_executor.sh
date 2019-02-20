@@ -15,16 +15,21 @@ readonly INPUT_NOTEBOOK_GCS_FILE=$(curl http://metadata.google.internal/computeM
 readonly OUTPUT_NOTEBOOK_GCS_FOLDER=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/output_notebook -H "Metadata-Flavor: Google")
 readonly PARAMETERS_GCS_FILE=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/parameters_file -H "Metadata-Flavor: Google")
 
+echo "Going to download ${INPUT_NOTEBOOK_GCS_FILE} to ${NOTEBOOKS_FOLDER}/"
 gsutil cp "${INPUT_NOTEBOOK_GCS_FILE}" "${NOTEBOOKS_FOLDER}/"
 readonly INPUT_NOTEBOOK_PATH=`find ${NOTEBOOKS_FOLDER}/ | grep ipynb`
+echo "Local path to the input notebook: ${INPUT_NOTEBOOK_PATH}"
 
 if [[ -z "${PARAMETERS_GCS_FILE}" ]]; then
+  echo "No input parameters present"
   papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}"
 else
+  echo "input parameters present"
   gsutil cp "${PARAMETERS_GCS_FILE}" params.yaml
   papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}" -f params.yaml
 fi
 
+echo "Going to upload result notebook ${OUTPUT_NOTEBOOK_PATH} to ${OUTPUT_NOTEBOOK_GCS_FOLDER}"
 gsutil cp "${OUTPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_GCS_FOLDER}"
 
 readonly INSTANCE_NAME=$(curl http://metadata.google.internal/computeMetadata/v1/instance/name -H "Metadata-Flavor: Google")
