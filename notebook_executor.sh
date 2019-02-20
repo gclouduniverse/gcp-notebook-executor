@@ -20,7 +20,7 @@ gsutil cp "${INPUT_NOTEBOOK_GCS_FILE}" "${NOTEBOOKS_FOLDER}/"
 readonly INPUT_NOTEBOOK_PATH=`find ${NOTEBOOKS_FOLDER}/ | grep ipynb`
 echo "Local path to the input notebook: ${INPUT_NOTEBOOK_PATH}"
 
-if [[ -z "${PARAMETERS_GCS_FILE}" ]]; then
+if echo "${PARAMETERS_GCS_FILE}" | grep 404; then
   echo "No input parameters present"
   papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}"
 else
