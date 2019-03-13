@@ -26,18 +26,21 @@ if [[ -z "${TESTING_MODE}" ]]; then
   TESTING_MODE_FLAG="--report-mode"
 fi
 
+PAPERMILL_EXIT_CODE=0
 if [[ -z "${PARAMETERS_GCS_FILE}" ]]; then
   echo "No input parameters present"
   papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}" "${TESTING_MODE_FLAG}"
+  PAPERMILL_EXIT_CODE=$?
 else
   echo "input parameters present"
   echo "GCS file with parameters: ${PARAMETERS_GCS_FILE}"
   gsutil cp "${PARAMETERS_GCS_FILE}" params.yaml
   papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}" -f params.yaml "${TESTING_MODE_FLAG}"
+  PAPERMILL_EXIT_CODE=$?
 fi
 
-if [[ ! -z "${TESTING_MODE}" && ! $? -eq 0 ]]; then
-  echo "Looks like we are in testing mode and notebook is broken."
+if [[ ! "${PAPERMILL_EXIT_CODE}" -eq 0 && ! -z "${TESTING_MODE}"]]; then
+  echo "Looks like we are in testing mode and notebook is broken. Exit code: ${PAPERMILL_EXIT_CODE}"
   touch FAILED
   gsutil cp ./FAILED "${OUTPUT_NOTEBOOK_GCS_FOLDER}"
 fi
