@@ -9,9 +9,7 @@ fi
 readonly NOTEBOOKS_FOLDER="/tmp"
 
 readonly OUTPUT_NOTEBOOK_NAME="notebook.ipynb"
-readonly OUTPUT_NOTEBOOK_ERROR_NAME="notebook_error.ipynb"
 readonly OUTPUT_NOTEBOOK_PATH="${NOTEBOOKS_FOLDER}/${OUTPUT_NOTEBOOK_NAME}"
-readonly OUTPUT_NOTEBOOK_ERROR_PATH="${NOTEBOOKS_FOLDER}/${OUTPUT_NOTEBOOK_ERROR_NAME}"
 
 readonly INPUT_NOTEBOOK_GCS_FILE=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/input_notebook -H "Metadata-Flavor: Google")
 readonly OUTPUT_NOTEBOOK_GCS_FOLDER=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/output_notebook -H "Metadata-Flavor: Google")
@@ -38,14 +36,14 @@ else
   papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}" -f params.yaml "${TESTING_MODE_FLAG}"
 fi
 
-if [[ -z "${TESTING_MODE}" && ! $? -eq 0 ]]; then
-  echo "Going to upload result notebook ${OUTPUT_NOTEBOOK_PATH} to ${OUTPUT_NOTEBOOK_GCS_FOLDER}"
-  gsutil cp "${OUTPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_GCS_FOLDER}"
-else
+if [[ ! -z "${TESTING_MODE}" && ! $? -eq 0 ]]; then
   echo "Looks like we are in testing mode and notebook is broken."
-  cp "${OUTPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_ERROR_PATH}"
-  gsutil cp "${OUTPUT_NOTEBOOK_ERROR_PATH}" "${OUTPUT_NOTEBOOK_GCS_FOLDER}"
+  touch FAILED
+  gsutil cp ./FAILED "${OUTPUT_NOTEBOOK_GCS_FOLDER}"
 fi
+
+echo "Going to upload result notebook ${OUTPUT_NOTEBOOK_PATH} to ${OUTPUT_NOTEBOOK_GCS_FOLDER}"
+gsutil cp "${OUTPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_GCS_FOLDER}"
 
 readonly INSTANCE_NAME=$(curl http://metadata.google.internal/computeMetadata/v1/instance/name -H "Metadata-Flavor: Google")
 INSTANCE_ZONE="/"$(curl http://metadata.google.internal/computeMetadata/v1/instance/zone -H "Metadata-Flavor: Google")
