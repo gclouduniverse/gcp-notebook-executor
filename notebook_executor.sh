@@ -39,7 +39,7 @@ else
   PAPERMILL_EXIT_CODE=$?
 fi
 
-if [[ "${PAPERMILL_EXIT_CODE}" -ne 0 && ! -z "${TESTING_MODE}"]]; then
+if [[ "${PAPERMILL_EXIT_CODE}" -ne 0 && ! -z "${TESTING_MODE}" ]]; then
   echo "Looks like we are in testing mode and notebook is broken. Exit code: ${PAPERMILL_EXIT_CODE}"
   touch FAILED
   gsutil cp ./FAILED "${OUTPUT_NOTEBOOK_GCS_FOLDER}"
