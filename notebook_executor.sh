@@ -48,12 +48,12 @@ echo "Papermill exit code is: ${PAPERMILL_EXIT_CODE}"
 
 if [[ "${PAPERMILL_EXIT_CODE}" -ne 0 && ! -z "${TESTING_MODE}" ]]; then
   echo "Looks like we are in testing mode and notebook is broken. Exit code: ${PAPERMILL_EXIT_CODE}"
-  touch FAILED
-  gsutil cp ./FAILED "${OUTPUT_NOTEBOOK_GCS_FOLDER}"
+  touch ./FAILED
+  gsutil cp ./FAILED "${OUTPUT_NOTEBOOK_GCS_FOLDER}/FAILED"
 fi
 
 echo "Going to upload result notebook ${OUTPUT_NOTEBOOK_PATH} to ${OUTPUT_NOTEBOOK_GCS_FOLDER}"
-gsutil cp "${OUTPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_GCS_FOLDER}"
+gsutil cp "${OUTPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_GCS_FOLDER}/"
 
 readonly INSTANCE_NAME=$(curl http://metadata.google.internal/computeMetadata/v1/instance/name -H "Metadata-Flavor: Google")
 INSTANCE_ZONE="/"$(curl http://metadata.google.internal/computeMetadata/v1/instance/zone -H "Metadata-Flavor: Google")
