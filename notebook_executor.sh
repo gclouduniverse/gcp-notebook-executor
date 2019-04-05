@@ -1,3 +1,5 @@
+#!/bin/bash -eu
+
 if lspci -vnn | grep NVIDIA > /dev/null 2>&1; then
   # Nvidia card found, need to check if driver is up
   if ! nvidia-smi > /dev/null 2>&1; then
