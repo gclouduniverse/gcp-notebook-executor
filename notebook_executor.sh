@@ -25,10 +25,10 @@ PAPERMILL_EXIT_CODE=0
 if [[ -z "${PARAMETERS_GCS_FILE}" ]]; then
   echo "No input parameters present"
   if [[ -z "${TESTING_MODE}" ]]; then
-    papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}"
+    papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}" --log-output
     PAPERMILL_EXIT_CODE=$?
   else
-    papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}" --report-mode
+    papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}" --report-mode --log-output
     PAPERMILL_EXIT_CODE=$?
   fi
 else
@@ -36,10 +36,10 @@ else
   echo "GCS file with parameters: ${PARAMETERS_GCS_FILE}"
   gsutil cp "${PARAMETERS_GCS_FILE}" params.yaml
   if [[ -z "${TESTING_MODE}" ]]; then
-    papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}" -f params.yaml
+    papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}" -f params.yaml --log-output
     PAPERMILL_EXIT_CODE=$?
   else
-    papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}" -f params.yaml
+    papermill "${INPUT_NOTEBOOK_PATH}" "${OUTPUT_NOTEBOOK_PATH}" -f params.yaml --log-output
     PAPERMILL_EXIT_CODE=$?
   fi
 fi
