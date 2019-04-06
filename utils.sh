@@ -124,7 +124,7 @@ function execute_notebook() {
         META_DATA="${META_DATA},${CUSTOM_META_DATA}"
     fi
 
-    if [[ -z "${GPU_TYPR}" ]]; then
+    if [[ -z "${GPU_TYPE}" ]]; then
         gcloud compute instances create "${INSTANCE_NAME}" \
                 --zone="${ZONE}" \
                 --image-family="${IMAGE_FAMILY}" \
