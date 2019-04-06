@@ -27,6 +27,7 @@ function execute_notebook() {
     local BUILD_ID=$(date +%s)
     local CUSTOM_META_DATA=""
 
+    local OPTIND opt
     while getopts "i:z:f:g:c:t:l:o:m:h" opt; do
     case ${opt} in
         i )
@@ -82,6 +83,7 @@ function execute_notebook() {
         ;;
     esac
     done
+    shift $((OPTIND -1))
     echo "Excution of the notebook initiated with the following input arguments: $@"
 
     echo "Build id: ${BUILD_ID}"
