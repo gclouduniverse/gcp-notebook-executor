@@ -25,8 +25,9 @@ function execute_notebook() {
     local INSTANCE_TYPE="n1-standard-8"
     local GCS_LOCATION=""
     local BUILD_ID=$(date +%s)
+    local CUSTOM_META_DATA=""
 
-    while getopts "i:z:f:g:c:t:l:o:h" opt; do
+    while getopts "i:z:f:g:c:t:l:o:m:h" opt; do
     case ${opt} in
         i )
         INPUT_NOTEBOOK=$OPTARG
@@ -49,12 +50,15 @@ function execute_notebook() {
         o )
         GCS_LOCATION=$OPTARG
         ;;
+        m )
+        CUSTOM_META_DATA=$OPTARG
+        ;;
         h )
         echo "Usage: "
-        echo "   ./execute_notebook_with_gpu -i [INPUT_NOTEBOOK] -o [GCS_OUTPUT_LOCATION] -g [GPU_TYPE] -c [GPU_COUNT] -z [ZONE] -t [INSTANCE_TYPE] -f [IMAGE_FAMILY]"
+        echo "   ./execute_notebook -i [INPUT_NOTEBOOK] -o [GCS_OUTPUT_LOCATION] -g [GPU_TYPE] -c [GPU_COUNT] -z [ZONE] -t [INSTANCE_TYPE] -f [IMAGE_FAMILY] -m [METAD_DATA_KEY]=[VALUE]"
         echo ""
         echo "example:"
-        echo "   ./execute_notebook_with_gpu -i test.ipynb -o gs://my-bucket -g p100 -c 4 -z us-west1-b -t n1-standard-8 -f tf-latest-gpu"
+        echo "   ./execute_notebook -i test.ipynb -o gs://my-bucket -g p100 -c 4 -z us-west1-b -t n1-standard-8 -f tf-latest-gpu -m mykey=myvalue"
         echo ""
         echo "default values:"
         echo "   gpu type: empty (no GPU will be used for training)"
@@ -62,6 +66,9 @@ function execute_notebook() {
         echo "   image family: tf-latest-gpu"
         echo "   zone: us-west1-b"
         echo "   instance-type: n1-standard-8"
+        echo ""
+        echo "required keys:"
+        echo "   i, o"
         echo ""
         return 1
         ;;
@@ -111,6 +118,12 @@ function execute_notebook() {
         return 1
     fi
     INSTANCE_NAME="notebookexecutor-${BUILD_ID}"
+    META_DATA="input_notebook=${INPUT_NOTEBOOK_GCS_PATH},output_notebook=${GCS_LOCATION}${PARAM_METADATA:-},startup-script-url=https://raw.githubusercontent.com/gclouduniverse/gcp-notebook-executor/master/notebook_executor.sh"
+    
+    if [[ ! -z "${CUSTOM_META_DATA}" ]]; then
+        META_DATA="${META_DATA},${CUSTOM_META_DATA}"
+    fi
+
     if [[ -z "${GPU_TYPR}" ]]; then
         gcloud compute instances create "${INSTANCE_NAME}" \
                 --zone="${ZONE}" \
@@ -120,7 +133,7 @@ function execute_notebook() {
                 --machine-type="${INSTANCE_TYPE}" \
                 --boot-disk-size=200GB \
                 --scopes=https://www.googleapis.com/auth/cloud-platform \
-                --metadata="input_notebook=${INPUT_NOTEBOOK_GCS_PATH},output_notebook=${GCS_LOCATION}${PARAM_METADATA:-},startup-script-url=https://raw.githubusercontent.com/gclouduniverse/gcp-notebook-executor/master/notebook_executor.sh" \
+                --metadata="${META_DATA}" \
                 --quiet
     else
         gcloud compute instances create "${INSTANCE_NAME}" \
@@ -132,7 +145,7 @@ function execute_notebook() {
                 --machine-type="${INSTANCE_TYPE}" \
                 --boot-disk-size=200GB \
                 --scopes=https://www.googleapis.com/auth/cloud-platform \
-                --metadata="input_notebook=${INPUT_NOTEBOOK_GCS_PATH},output_notebook=${GCS_LOCATION}${PARAM_METADATA:-},startup-script-url=https://raw.githubusercontent.com/gclouduniverse/gcp-notebook-executor/master/notebook_executor.sh" \
+                --metadata="${META_DATA}" \
                 --quiet
     fi
     if [[ $? -eq 1 ]]; then
