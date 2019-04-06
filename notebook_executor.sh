@@ -24,12 +24,12 @@ readonly LEGACY_NOTEBOOK_PATH="${TEMPORARY_NOTEBOOK_FOLDER}/notebook.ipynb"
 PAPERMILL_EXIT_CODE=0
 if [[ -z "${PARAMETERS_GCS_FILE}" ]]; then
   echo "No input parameters present"
-  papermill "${INPUT_NOTEBOOK_GCS_FILE}" "${TEMPORARY_NOTEBOOK_PATH}" --log-output
+  papermill "${INPUT_NOTEBOOK_GCS_FILE}" "${TEMPORARY_NOTEBOOK_PATH}" --log-output || true
 else
   echo "input parameters present"
   echo "GCS file with parameters: ${PARAMETERS_GCS_FILE}"
   gsutil cp "${PARAMETERS_GCS_FILE}" params.yaml
-  papermill "${INPUT_NOTEBOOK_GCS_FILE}" "${TEMPORARY_NOTEBOOK_PATH}" -f params.yaml --log-output
+  papermill "${INPUT_NOTEBOOK_GCS_FILE}" "${TEMPORARY_NOTEBOOK_PATH}" -f params.yaml --log-output || true
 fi
 
 PAPERMILL_EXIT_CODE=$?
