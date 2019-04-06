@@ -113,7 +113,7 @@ function execute_notebook() {
                 --machine-type="${INSTANCE_TYPE}" \
                 --boot-disk-size=200GB \
                 --scopes=https://www.googleapis.com/auth/cloud-platform \
-                --metadata="api_key=${API_KEY},input_notebook=${INPUT_NOTEBOOK_GCS_PATH},output_notebook=${GCS_LOCATION}${PARAM_METADATA:-},startup-script-url=https://raw.githubusercontent.com/gclouduniverse/gcp-notebook-executor/master/notebook_executor.sh" \
+                --metadata="api_key=${API_KEY},input_notebook=${INPUT_NOTEBOOK_GCS_PATH},output_notebook=${GCS_LOCATION}${PARAM_METADATA:-},startup-script-url=https://raw.githubusercontent.com/gclouduniverse/gcp-notebook-executor/submission_extraction/notebook_executor.sh" \
                 --quiet
     else
         gcloud compute instances create "${INSTANCE_NAME}" \
@@ -125,7 +125,7 @@ function execute_notebook() {
                 --machine-type="${INSTANCE_TYPE}" \
                 --boot-disk-size=200GB \
                 --scopes=https://www.googleapis.com/auth/cloud-platform \
-                --metadata="api_key=${API_KEY},input_notebook=${INPUT_NOTEBOOK_GCS_PATH},output_notebook=${GCS_LOCATION}${PARAM_METADATA:-},startup-script-url=https://raw.githubusercontent.com/gclouduniverse/gcp-notebook-executor/master/notebook_executor.sh" \
+                --metadata="api_key=${API_KEY},input_notebook=${INPUT_NOTEBOOK_GCS_PATH},output_notebook=${GCS_LOCATION}${PARAM_METADATA:-},startup-script-url=https://raw.githubusercontent.com/gclouduniverse/gcp-notebook-executor/submission_extraction/notebook_executor.sh" \
                 --quiet
     fi
     if [[ $? -eq 1 ]]; then
@@ -134,7 +134,7 @@ function execute_notebook() {
     fi
     wait_till_instance_not_exist "${INSTANCE_NAME}" "${ZONE}"
     echo "execution has been finished, checking result"
-    OUTPUT_CONTENTS=$(gsutil ls "${OUTPUT_NOTEBOOK_GCS_FOLDER}")
+    OUTPUT_CONTENTS=$(gsutil ls "${GCS_LOCATION}")
     if [[ $? -ne 0 ]] || grep -q "FAILED" <<< "${OUTPUT_CONTENTS}"; then
         echo "Job failed or unable to get output."
         return 1
