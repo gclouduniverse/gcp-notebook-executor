@@ -82,7 +82,6 @@ function execute_notebook() {
         ;;
     esac
     done
-    shift $((OPTIND -1))
     echo "Excution of the notebook initiated with the following input arguments: $@"
 
     echo "Build id: ${BUILD_ID}"
