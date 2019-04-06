@@ -96,6 +96,13 @@ function execute_notebook() {
         gsutil cp "${PARAM_FILE}" "${INPUT_PARAM_GCS_PATH}"
         PARAM_METADATA=",parameters_file=${INPUT_PARAM_GCS_PATH}"
     fi
+
+    OUTPUT_CONTENTS=$(gsutil ls "${GCS_LOCATION}")
+    if [[ $? -ne 0 ]] || grep -q "FAILED" <<< "${OUTPUT_CONTENTS}"; then
+        echo "FAILED marker file exist from past executions, deleting."
+        gsutil rm "${GCS_LOCATION}/FAILED"
+    fi
+
     echo "Staging notebook: ${INPUT_NOTEBOOK_GCS_PATH}"
     echo "Output notebook: ${GCS_LOCATION}"
     gsutil cp "${INPUT_NOTEBOOK}" "${INPUT_NOTEBOOK_GCS_PATH}"
@@ -113,7 +120,7 @@ function execute_notebook() {
                 --machine-type="${INSTANCE_TYPE}" \
                 --boot-disk-size=200GB \
                 --scopes=https://www.googleapis.com/auth/cloud-platform \
-                --metadata="api_key=${API_KEY},input_notebook=${INPUT_NOTEBOOK_GCS_PATH},output_notebook=${GCS_LOCATION}${PARAM_METADATA:-},startup-script-url=https://raw.githubusercontent.com/gclouduniverse/gcp-notebook-executor/submission_extraction/notebook_executor.sh" \
+                --metadata="input_notebook=${INPUT_NOTEBOOK_GCS_PATH},output_notebook=${GCS_LOCATION}${PARAM_METADATA:-},startup-script-url=https://raw.githubusercontent.com/gclouduniverse/gcp-notebook-executor/master/notebook_executor.sh" \
                 --quiet
     else
         gcloud compute instances create "${INSTANCE_NAME}" \
@@ -125,7 +132,7 @@ function execute_notebook() {
                 --machine-type="${INSTANCE_TYPE}" \
                 --boot-disk-size=200GB \
                 --scopes=https://www.googleapis.com/auth/cloud-platform \
-                --metadata="api_key=${API_KEY},input_notebook=${INPUT_NOTEBOOK_GCS_PATH},output_notebook=${GCS_LOCATION}${PARAM_METADATA:-},startup-script-url=https://raw.githubusercontent.com/gclouduniverse/gcp-notebook-executor/submission_extraction/notebook_executor.sh" \
+                --metadata="input_notebook=${INPUT_NOTEBOOK_GCS_PATH},output_notebook=${GCS_LOCATION}${PARAM_METADATA:-},startup-script-url=https://raw.githubusercontent.com/gclouduniverse/gcp-notebook-executor/master/notebook_executor.sh" \
                 --quiet
     fi
     if [[ $? -eq 1 ]]; then
