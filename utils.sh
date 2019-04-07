@@ -26,6 +26,7 @@ function execute_notebook() {
     local GCS_LOCATION=""
     local BUILD_ID=$(date +%s)
     local CUSTOM_META_DATA=""
+    local PARAM_FILE=""
 
     local OPTIND opt
     while getopts "i:z:f:g:c:t:l:o:m:h" opt; do
