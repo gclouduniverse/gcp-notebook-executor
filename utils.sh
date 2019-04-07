@@ -29,7 +29,7 @@ function execute_notebook() {
     local PARAM_FILE=""
 
     local OPTIND opt
-    while getopts "i:z:f:g:c:t:l:o:m:h" opt; do
+    while getopts "i:z:f:g:c:t:l:o:m:p:h" opt; do
     case ${opt} in
         i )
         INPUT_NOTEBOOK=$OPTARG
@@ -55,12 +55,15 @@ function execute_notebook() {
         m )
         CUSTOM_META_DATA=$OPTARG
         ;;
+        p )
+        PARAM_FILE=$OPTARG
+        ;;
         h )
         echo "Usage: "
-        echo "   ./execute_notebook -i [INPUT_NOTEBOOK] -o [GCS_OUTPUT_LOCATION] -g [GPU_TYPE] -c [GPU_COUNT] -z [ZONE] -t [INSTANCE_TYPE] -f [IMAGE_FAMILY] -m [METAD_DATA_KEY]=[VALUE]"
+        echo "   ./execute_notebook -i [INPUT_NOTEBOOK] -o [GCS_OUTPUT_LOCATION] -g [GPU_TYPE] -c [GPU_COUNT] -z [ZONE] -t [INSTANCE_TYPE] -f [IMAGE_FAMILY] -m [METAD_DATA_KEY]=[VALUE] -p [PARAM_FILE]"
         echo ""
         echo "example:"
-        echo "   ./execute_notebook -i test.ipynb -o gs://my-bucket -g p100 -c 4 -z us-west1-b -t n1-standard-8 -f tf-latest-gpu -m mykey=myvalue"
+        echo "   ./execute_notebook -i test.ipynb -o gs://my-bucket -g p100 -c 4 -z us-west1-b -t n1-standard-8 -f tf-latest-gpu -m mykey=myvalue -p ./params"
         echo ""
         echo "default values:"
         echo "   gpu type: empty (no GPU will be used for training)"
@@ -121,7 +124,7 @@ function execute_notebook() {
         return 1
     fi
     INSTANCE_NAME="notebookexecutor-${BUILD_ID}"
-    META_DATA="input_notebook=${INPUT_NOTEBOOK_GCS_PATH},output_notebook=${GCS_LOCATION}${PARAM_METADATA:-},startup-script-url=https://raw.githubusercontent.com/gclouduniverse/gcp-notebook-executor/v0.1.2/notebook_executor.sh"
+    META_DATA="input_notebook=${INPUT_NOTEBOOK_GCS_PATH},output_notebook=${GCS_LOCATION}${PARAM_METADATA:-},startup-script-url=https://raw.githubusercontent.com/gclouduniverse/gcp-notebook-executor/v0.1.3/notebook_executor.sh"
     
     if [[ ! -z "${CUSTOM_META_DATA}" ]]; then
         META_DATA="${META_DATA},${CUSTOM_META_DATA}"
