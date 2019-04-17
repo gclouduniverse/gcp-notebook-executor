@@ -124,7 +124,7 @@ function execute_notebook() {
         return 1
     fi
     INSTANCE_NAME="notebookexecutor-${BUILD_ID}"
-    META_DATA="input_notebook=${INPUT_NOTEBOOK_GCS_PATH},output_notebook=${GCS_LOCATION}${PARAM_METADATA:-},post-startup-script=https://raw.githubusercontent.com/gclouduniverse/gcp-notebook-executor/v0.1.3/notebook_executor.sh"
+    META_DATA="input_notebook=${INPUT_NOTEBOOK_GCS_PATH},output_notebook=${GCS_LOCATION}${PARAM_METADATA:-},startup-script-url=https://raw.githubusercontent.com/gclouduniverse/gcp-notebook-executor/v0.1.3/notebook_executor.sh"
     
     if [[ ! -z "${CUSTOM_META_DATA}" ]]; then
         META_DATA="${META_DATA},${CUSTOM_META_DATA}"
