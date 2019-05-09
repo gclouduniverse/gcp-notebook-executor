@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash
 
 if lspci -vnn | grep NVIDIA > /dev/null 2>&1; then
   # Nvidia card found, need to check if driver is up
@@ -9,7 +9,7 @@ if lspci -vnn | grep NVIDIA > /dev/null 2>&1; then
 fi
 
 if [[ ! -z $(command -v conda) ]]; then
-  conda activate base
+  source /opt/anaconda3/bin/activate base
 fi
 
 readonly INPUT_NOTEBOOK_GCS_FILE=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/input_notebook -H "Metadata-Flavor: Google")
